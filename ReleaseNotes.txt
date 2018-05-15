@@ -1,0 +1,3 @@
+Release notes Geem 2.3.7
+
+- Initial release. Version started at 2.3.7.
