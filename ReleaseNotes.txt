@@ -1,3 +1,11 @@
+Release notes Geem 2.3.8
+
+- Blockchain checkpoints upto 85K
+- Various recursive typo corrections
+- Various code improvements
+- Version codename Sitara
+- First ASCII Art for the Geem Daemon
+
 Release notes Geem 2.3.7
 
 - Initial release. Version started at 2.3.7.

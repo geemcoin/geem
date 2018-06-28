@@ -1,6 +1,6 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
-// 
-// 
+//
+//
 // Copyright (c) 2016-2018, The Geem developers
 //
 // This file is part of Bytecoin.
@@ -31,13 +31,13 @@ const size_t   CRYPTONOTE_MAX_BLOCK_BLOB_SIZE                = 500000000;
 const size_t   CRYPTONOTE_MAX_TX_SIZE                        = 1000000000;
 const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 90; // addresses start with "G"
 const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 10;
+const size_t   CRYPTONOTE_TX_SPENDABLE_AGE                   = 6;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = DIFFICULTY_TARGET * 7;
-
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 60;
 
 // MONEY_SUPPLY - total number coins to be generated
 const uint64_t MONEY_SUPPLY                                  = UINT64_C(2000000000000000);
-const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(6000000);
+const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(100000000);
 const size_t CRYPTONOTE_COIN_VERSION                         = 1;
 const unsigned EMISSION_SPEED_FACTOR                         = 18;
 static_assert(EMISSION_SPEED_FACTOR <= 8 * sizeof(uint64_t), "Bad EMISSION_SPEED_FACTOR");
@@ -56,7 +56,7 @@ const uint64_t MAX_TX_MIXIN_SIZE                             = 20;
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
 const size_t   DIFFICULTY_WINDOW_V2                          = 17;  // blocks
-const size_t   DIFFICULTY_WINDOW_V3                          = 60 + 1; // blocks (add one to compensate off-by-one in difficulty calculation)
+const size_t   DIFFICULTY_WINDOW_V3                          = 60;  // blocks
 const size_t   DIFFICULTY_CUT                                = 60;  // timestamps to cut after sorting
 const size_t   DIFFICULTY_LAG                                = 15;  // !!!
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
@@ -145,13 +145,19 @@ struct CheckpointData {
 };
 
 const std::initializer_list<CheckpointData> CHECKPOINTS = { 
-   {7150,        "69c7e57cb576fd0899951c7ea5841d529358682d9ae6fc183051b0663bd84a63" },           // 12/25/2017, 5:37:56 PM
+  {7150,        "69c7e57cb576fd0899951c7ea5841d529358682d9ae6fc183051b0663bd84a63" },           // 12/25/2017, 5:37:56 PM
   {7201,        "a07c0cb16114853a2801a4ef68c9c22b9ceb27931e649fdc2ee7f5a7d0e4e99c" },           // 12/25/2017, 8:48:15 PM //V2.0-Start
   {7777,        "36637f9067ab76b3886a826b29f09a0582a345a9cc311315231955c91c43a184" },           // 12/30/2017, 8:55:18 PM
   {8888,        "368eb9d8ff276f133282ea22150c265d7031159e586df6e8b2e2b3b42c2311f3" },           // 1/9/2018, 7:51:32 AM
   {9999,        "18505e185cd92867fe4c9d8eb1160e4da63b53674040bb8c1b36865d873815ca" },           // 3/5/2018, 0:1:10 AM
-  {20000,       "9a1413cc5d46dd2b67a0986c5fed5d8513a4c068ed589649335789cb12d5487d" }            // 3/5/2018, 0:10:37 AM //Long-Term
-
+  {20000,       "9a1413cc5d46dd2b67a0986c5fed5d8513a4c068ed589649335789cb12d5487d" },           // 3/5/2018, 0:10:37 AM //Long-Term
+  {22222,	"0b932de4ff8ef8a6d3ad7031c8e1abe68283da1bc47427201b7ac316d3c3f4fc" },
+  {33333,       "0448be8befda190a034155767dd037730761248713f6be04dc356e027063dd6a" },
+  {44444,       "639fbbfe5a5b9c40cb44fb2023d05fb1beb0fb31cd7b1b39e9b31187405a4a5e" },
+  {55555,       "4c126bf44d79b107805d5ef34a52d78c1a4c25aa4b1dff9a59a3a13f8c06f01e" },
+  {66666,       "80d28a5be20ff8e0a07210648e62e838a95979016c06c3a02d4abe2ef48fc34d" },
+  {77777,       "ffc11d6988f7519343ff53f96cf2a6fc4a7ae344e3096e898a2b15f7990a2126" },
+  {85000,       "0bbd7999ca258794da60a839d13588b8c4338bdc903034ad8c9d6193b7cbe7e5" }		// 25/6/2018, 23:17:29 PM //Long-Term-JSAJ-Sitara
 };
 
 } // CryptoNote

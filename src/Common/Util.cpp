@@ -22,7 +22,7 @@
 
 #include "CryptoNoteConfig.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #include <shlobj.h>
 #include <strsafe.h>
@@ -304,7 +304,11 @@ std::string get_nix_version_display_string()
     // Mac: ~/Library/Application Support/CRYPTONOTE_NAME
     // Unix: ~/.CRYPTONOTE_NAME
     std::string config_folder;
-#ifdef WIN32
+
+#ifdef USE_LITE_WALLET
+    config_folder = "./";
+#else
+#ifdef _WIN32
     // Windows
     config_folder = get_special_folder_path(CSIDL_APPDATA, true) + "/" + CryptoNote::CRYPTONOTE_NAME;
 #else
@@ -323,7 +327,7 @@ std::string get_nix_version_display_string()
     config_folder = (pathRet + "/." + CryptoNote::CRYPTONOTE_NAME);
 #endif
 #endif
-
+#endif
     return config_folder;
   }
 
