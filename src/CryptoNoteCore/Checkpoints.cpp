@@ -156,7 +156,7 @@ std::vector<uint32_t> Checkpoints::getCheckpointHeights() const {
 //---------------------------------------------------------------------------
 bool Checkpoints::load_checkpoints_from_dns()
 {
-  std::string domain("geemexplorer.com");
+  std::string domain("geem.io");
   std::vector<std::string>records;
 
   if (!Common::fetch_dns_txt(domain, records)) {
