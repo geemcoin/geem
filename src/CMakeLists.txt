@@ -55,11 +55,10 @@ add_library(PaymentGate ${PaymentGate})
 add_library(JsonRpcServer ${JsonRpcServer})
 add_library(Mnemonics ${Mnemonics})
 
-if(WIN32)
+
 add_executable(Daemon ${Daemon} )
 add_executable(SimpleWallet ${SimpleWallet} )
 add_executable(PaymentGateService ${PaymentGateService} )
-endif()
 add_executable(ConnectivityTool ${ConnectivityTool})
 add_executable(Miner ${Miner})
 
