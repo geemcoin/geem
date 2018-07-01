@@ -242,7 +242,7 @@ int main(int argc, char* argv[])
     }
 
 #ifndef __ANDROID__
-	checkpoints.load_checkpoints_from_dns();
+
 #endif
 
 	bool use_checkpoints = !command_line::get_arg(vm, arg_load_checkpoints).empty();
