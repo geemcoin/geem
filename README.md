@@ -12,7 +12,7 @@ Recommended OS is Ubuntu 16.04 with Boost 1.58 and cmake 2.8.6 or later.
 
 To setup build environment, run the command below.:
 ```
-sudo apt-get install build-essential git cmake libboostall-dev
+sudo apt-get install build-essential git cmake libboost-all-dev
 ```
 You may download them from:
 
