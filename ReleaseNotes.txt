@@ -3,7 +3,9 @@ Release notes Geem 2.3.8
 - Blockchain checkpoints upto 85K
 - Various recursive typo corrections
 - Various code improvements
+- SimpleWallet and GUI wallet now supports unmixable dust
 - Version codename Sitara
+- Version frienly name The Northern Star
 - First ASCII Art for the Geem Daemon
 
 Release notes Geem 2.3.7
