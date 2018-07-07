@@ -8,7 +8,7 @@ Geem (Geem) is an anonymous and private cryptocurrency , just like Bitcoin but m
 
 Dependencies: GCC 4.7.3 or later, CMake 2.8.6 or later, and Boost 1.58.
 
-Recommended OS is Ubuntu 16.04 with Boost 1.58 and cmake 2.8.6.
+Recommended OS is Ubuntu 16.04 with Boost 1.58 and cmake 2.8.6 or later.
 
 To setup build environment, run the command below.:
 ```
