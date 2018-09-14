@@ -1,7 +1,8 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
-//
-//
-// Copyright (c) 2016-2018, The Geem developers
+// 
+// 
+// Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2017-2018, The Geem developers
 //
 // This file is part of Bytecoin.
 //
@@ -33,10 +34,13 @@ const uint64_t CRYPTONOTE_PUBLIC_ADDRESS_BASE58_PREFIX       = 90; // addresses 
 const size_t   CRYPTONOTE_MINED_MONEY_UNLOCK_WINDOW          = 10;
 const size_t   CRYPTONOTE_TX_SPENDABLE_AGE                   = 6;
 const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT            = DIFFICULTY_TARGET * 7;
+const uint64_t CRYPTONOTE_BLOCK_FUTURE_TIME_LIMIT_V1         = DIFFICULTY_TARGET * 3;
 const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW             = 60;
+const size_t   BLOCKCHAIN_TIMESTAMP_CHECK_WINDOW_V1          = 11;
 
 // MONEY_SUPPLY - total number coins to be generated
 const uint64_t MONEY_SUPPLY                                  = UINT64_C(2000000000000000);
+const uint64_t COIN                                          = UINT64_C(100000000);
 const uint64_t TAIL_EMISSION_REWARD                          = UINT64_C(100000000);
 const size_t CRYPTONOTE_COIN_VERSION                         = 1;
 const unsigned EMISSION_SPEED_FACTOR                         = 18;
@@ -49,9 +53,14 @@ const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_V1  = 100000;
 const size_t   CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_CURRENT = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE;
 const size_t   CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE        = 600;
 const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;
+
 const uint64_t MINIMUM_FEE                                   = UINT64_C(100000);
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(100000);
+const uint64_t MAXIMUM_FEE                                   = UINT64_C(100000);
+
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(0);
+const uint64_t MIN_TX_MIXIN_SIZE                             = 2;
 const uint64_t MAX_TX_MIXIN_SIZE                             = 20;
+const uint64_t MAX_TRANSACTION_SIZE_LIMIT                    = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_CURRENT / 4 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
 
 const uint64_t EXPECTED_NUMBER_OF_BLOCKS_PER_DAY             = 24 * 60 * 60 / DIFFICULTY_TARGET;
 const size_t   DIFFICULTY_WINDOW                             = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY; // blocks
@@ -60,6 +69,10 @@ const size_t   DIFFICULTY_WINDOW_V3                          = 60;  // blocks
 const size_t   DIFFICULTY_CUT                                = 60;  // timestamps to cut after sorting
 const size_t   DIFFICULTY_LAG                                = 15;  // !!!
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
+
+const uint64_t POISSON_CHECK_TRIGGER = 10; // Reorg size that triggers poisson timestamp check
+const uint64_t POISSON_CHECK_DEPTH = 60;   // Main-chain depth of the poisson check. The attacker will have to tamper 50% of those blocks
+const double POISSON_LOG_P_REJECT = -75.0; // Reject reorg if the probablity that the timestamps are genuine is below e^x, -75 = 10^-33
 
 const size_t   MAX_BLOCK_SIZE_INITIAL                        = 1000000;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR         = 100 * 1024;
@@ -78,6 +91,7 @@ const size_t   FUSION_TX_MIN_IN_OUT_COUNT_RATIO              = 4;
 
 const uint32_t UPGRADE_HEIGHT_V2                             = 7200;
 const uint32_t UPGRADE_HEIGHT_V3                             = 400000000;
+const uint32_t UPGRADE_HEIGHT_V4                             = 500000000;
 const unsigned UPGRADE_VOTING_THRESHOLD                      = 90; // percent
 const uint32_t UPGRADE_VOTING_WINDOW                         = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY;  // blocks
 const uint32_t UPGRADE_WINDOW                                = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY;  // blocks
@@ -100,6 +114,7 @@ const uint8_t  CURRENT_TRANSACTION_VERSION                   =  1;
 const uint8_t  BLOCK_MAJOR_VERSION_1                         =  1;
 const uint8_t  BLOCK_MAJOR_VERSION_2                         =  2;
 const uint8_t  BLOCK_MAJOR_VERSION_3                         =  3;
+const uint8_t  BLOCK_MAJOR_VERSION_4                         =  4;
 const uint8_t  BLOCK_MINOR_VERSION_0                         =  0;
 const uint8_t  BLOCK_MINOR_VERSION_1                         =  1;
 
@@ -151,13 +166,21 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {8888,        "368eb9d8ff276f133282ea22150c265d7031159e586df6e8b2e2b3b42c2311f3" },           // 1/9/2018, 7:51:32 AM
   {9999,        "18505e185cd92867fe4c9d8eb1160e4da63b53674040bb8c1b36865d873815ca" },           // 3/5/2018, 0:1:10 AM
   {20000,       "9a1413cc5d46dd2b67a0986c5fed5d8513a4c068ed589649335789cb12d5487d" },           // 3/5/2018, 0:10:37 AM //Long-Term
-  {22222,	"0b932de4ff8ef8a6d3ad7031c8e1abe68283da1bc47427201b7ac316d3c3f4fc" },
+  {22222,	    "0b932de4ff8ef8a6d3ad7031c8e1abe68283da1bc47427201b7ac316d3c3f4fc" },
   {33333,       "0448be8befda190a034155767dd037730761248713f6be04dc356e027063dd6a" },
   {44444,       "639fbbfe5a5b9c40cb44fb2023d05fb1beb0fb31cd7b1b39e9b31187405a4a5e" },
   {55555,       "4c126bf44d79b107805d5ef34a52d78c1a4c25aa4b1dff9a59a3a13f8c06f01e" },
   {66666,       "80d28a5be20ff8e0a07210648e62e838a95979016c06c3a02d4abe2ef48fc34d" },
   {77777,       "ffc11d6988f7519343ff53f96cf2a6fc4a7ae344e3096e898a2b15f7990a2126" },
-  {85000,       "0bbd7999ca258794da60a839d13588b8c4338bdc903034ad8c9d6193b7cbe7e5" }		// 25/6/2018, 23:17:29 PM //Long-Term-JSAJ-Sitara
+  {85000,       "0bbd7999ca258794da60a839d13588b8c4338bdc903034ad8c9d6193b7cbe7e5" },		// 25/6/2018, 23:17:29 PM //Long-Term-JSAJ-Sitara
+  {88888,       "16ff12a648655834b3142fe2a7c14019c5c72486d2e7532d08938ad15663bcdb" },
+  {99999,       "f94c50f8c402379b0c4e9e2c363fb78a11ee07dd4dc11f36e700624f29be9434" },
+  {100000,      "46429f94a26d9e93cd258cdcab292794bd04a54746e415740ff12d9b74eeb6cb" },
+  {111111,      "2694ccb473aaa42f5705f00daf3d1d7ce2987c07b1bee2ef650b9a8701be6f7f" },
+  {122222,      "a5fb88af91d31f3a5560ad4ed1277a3e4ee1aa1487f8835f830877a2b9f93c63" },
+  {130000,      "c20d0796e86fd2f6b0d14f25142dc17886a85398944050cdfa3ec900ae6368b9" },
+  {133333,      "0bd8f1a865479d522e439b2751aea706282da823a20f2bb8f998548d3aa17368" },
+  {135900,      "6fed04437714f81a9d1c40d5e509c323efce12a282d3ff60268b10380822bdbb" }            // 9/8/2018, 4:24:16 PM //Long-Term-JSAJ-Nebula
 };
 
 } // CryptoNote

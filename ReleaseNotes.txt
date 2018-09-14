@@ -1,3 +1,15 @@
+Release notes Geem 2.3.9
+
+- Blockchain checkpoints upto block 130900
+- Various recursive typo corrections
+- Various code improvements
+- Adaptive fees now enabled
+- Transaction Verification and payment proof methods implemented
+- Transactions with individual keys for payment verification between private parties
+- Blockchain integration with explorer for payment verification
+- Version codename Nebula
+- Version friendly name The StarDust
+
 Release notes Geem 2.3.8
 
 - Blockchain checkpoints upto 85K

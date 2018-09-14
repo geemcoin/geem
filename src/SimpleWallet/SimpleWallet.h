@@ -1,6 +1,7 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2014-2016, XDN developers
-// Copyright (c) 2016-2018, Geem developers
+// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2016-2018, The Geem developers
 //
 // All rights reserved.
 // 
@@ -121,9 +122,12 @@ namespace CryptoNote
     bool save(const std::vector<std::string> &args);
     bool reset(const std::vector<std::string> &args);
     bool set_log(const std::vector<std::string> &args);
-	bool payment_id(const std::vector<std::string> &args);
-	bool change_password(const std::vector<std::string> &args);
-	bool sweep_dust(const std::vector<std::string> &args);
+    bool payment_id(const std::vector<std::string> &args);
+    bool change_password(const std::vector<std::string> &args);
+    bool sweep_dust(const std::vector<std::string> &args);
+    bool get_tx_key(const std::vector<std::string> &args);
+    bool sign_message(const std::vector<std::string> &args);
+    bool verify_message(const std::vector<std::string> &args);
 
 #ifndef __ANDROID__
 	std::string resolveAlias(const std::string& aliasUrl);
@@ -132,6 +136,7 @@ namespace CryptoNote
     bool ask_wallet_create_if_needed();
 
     void printConnectionError() const;
+	uint64_t getMinimalFee();
 
     //---------------- IWalletLegacyObserver -------------------------
     virtual void initCompleted(std::error_code result) override;

@@ -103,13 +103,15 @@ namespace CryptoNote {
 
   //---------------------------------------------------------------------------------
   tx_memory_pool::tx_memory_pool(
-    const CryptoNote::Currency& currency, 
+    const CryptoNote::Currency& currency,
     CryptoNote::ITransactionValidator& validator, 
+    CryptoNote::ICore& core,
     CryptoNote::ITimeProvider& timeProvider,
     Logging::ILogger& log,
     bool blockchainIndexesEnabled) :
     m_currency(currency),
-    m_validator(validator), 
+    m_validator(validator),
+    m_core(core),
     m_timeProvider(timeProvider), 
     m_txCheckInterval(60, timeProvider),
     m_fee_index(boost::get<1>(m_transactions)),
@@ -140,14 +142,20 @@ namespace CryptoNote {
     }
 
     const uint64_t fee = inputs_amount - outputs_amount;
-    bool isFusionTransaction = fee == 0 && m_currency.isFusionTransaction(tx, blobSize);
-    if (!keptByBlock && !isFusionTransaction && fee < m_currency.minimumFee()) {
-      logger(INFO) << "transaction fee is not enough: " << m_currency.formatAmount(fee) <<
-        ", minimum fee: " << m_currency.formatAmount(m_currency.minimumFee());
-      tvc.m_verification_failed = true;
-      tvc.m_tx_fee_too_small = true;
-      return false;
-    }
+    bool isFusionTransaction = fee == 0 && m_currency.isFusionTransaction(tx, blobSize, m_core.get_current_blockchain_height());
+
+    // Check fee is probably not neeeded here as it is already verified in Core's handleIncomingTransaction()
+	if (!keptByBlock && !isFusionTransaction) {
+		if (m_core.getCurrentBlockMajorVersion() < BLOCK_MAJOR_VERSION_4 ? fee < m_currency.minimumFee() : 
+			fee < m_core.getMinimalFeeForHeight(m_core.get_current_blockchain_height() - CryptoNote::parameters::EXPECTED_NUMBER_OF_BLOCKS_PER_DAY)) {
+			logger(INFO) << "[TransactionPool] Transaction fee is not enough: " << m_currency.formatAmount(fee) <<
+				", minimal fee: " << m_currency.formatAmount(m_core.getCurrentBlockMajorVersion() < BLOCK_MAJOR_VERSION_4 ?
+				m_currency.minimumFee() : m_core.getMinimalFeeForHeight(m_core.get_current_blockchain_height() - CryptoNote::parameters::EXPECTED_NUMBER_OF_BLOCKS_PER_DAY));
+			tvc.m_verification_failed = true;
+			tvc.m_tx_fee_too_small = true;
+			return false;
+		}
+	}
 
     //check key images for transaction if it is not kept by block
     if (!keptByBlock) {

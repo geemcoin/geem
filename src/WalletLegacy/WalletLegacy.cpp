@@ -1,4 +1,5 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
+// Copyright (c) 2014-2016, The Monero Project
 // Copyright (c) 2017-2018, Geem developers
 // 
 // All rights reserved.
@@ -32,11 +33,13 @@
 #include <string.h>
 #include <time.h>
 
+#include <Common/Base58.h>
 #include "Logging/ConsoleLogger.h"
 #include "WalletLegacy/WalletHelper.h"
 #include "WalletLegacy/WalletLegacySerialization.h"
 #include "WalletLegacy/WalletLegacySerializer.h"
 #include "WalletLegacy/WalletUtils.h"
+#include "Common/StringTools.h"
 #include "mnemonics/electrum-words.h"
 
 extern "C"
@@ -449,6 +452,37 @@ std::string WalletLegacy::getAddress() {
   return m_currency.accountAddressAsString(m_account);
 }
 
+std::string WalletLegacy::sign_message(const std::string &message) {
+  Crypto::Hash hash;
+  Crypto::cn_fast_hash(message.data(), message.size(), hash);
+  const CryptoNote::AccountKeys &keys = m_account.getAccountKeys();
+  Crypto::Signature signature;
+  Crypto::generate_signature(hash, keys.address.spendPublicKey, keys.spendSecretKey, signature);
+  return std::string("SigV1") + Tools::Base58::encode(std::string((const char *)&signature, sizeof(signature)));
+}
+
+bool WalletLegacy::verify_message(const std::string &message, const CryptoNote::AccountPublicAddress &address, const std::string &signature) {
+  const size_t header_len = strlen("SigV1");
+  if (signature.size() < header_len || signature.substr(0, header_len) != "SigV1") {
+    std::cout << "Signature header check error";
+    return false;
+  }
+  Crypto::Hash hash;
+  Crypto::cn_fast_hash(message.data(), message.size(), hash);
+  std::string decoded;
+  if (!Tools::Base58::decode(signature.substr(header_len), decoded)) {
+    std::cout <<"Signature decoding error";
+    return false;
+  }
+  Crypto::Signature s;
+  if (sizeof(s) != decoded.size()) {
+    std::cout << "Signature decoding error";
+    return false;
+  }
+  memcpy(&s, decoded.data(), sizeof(s));
+  return Crypto::check_signature(hash, address.spendPublicKey, s);
+}
+
 uint64_t WalletLegacy::actualBalance() {
   std::unique_lock<std::mutex> lock(m_cacheMutex);
   throwIfNotInitialised();
@@ -477,7 +511,7 @@ uint64_t WalletLegacy::dustBalance() {
 	for (size_t i = 0; i < outputs.size(); ++i) {
 		const auto& out = outputs[i];
 		if (!m_transactionsCache.isUsed(out)) {
-			if (out.amount < m_currency.defaultDustThreshold() && !is_valid_decomposed_amount(out.amount)) {
+			if (/*out.amount < m_currency.defaultDustThreshold() &&*/ !is_valid_decomposed_amount(out.amount)) {
 				money += out.amount;
 			}
 		}
@@ -729,6 +763,17 @@ void WalletLegacy::getAccountKeys(AccountKeys& keys) {
 std::vector<TransactionId> WalletLegacy::deleteOutdatedUnconfirmedTransactions() {
   std::lock_guard<std::mutex> lock(m_cacheMutex);
   return m_transactionsCache.deleteOutdatedTransactions();
+}
+
+Crypto::SecretKey WalletLegacy::getTxKey(Crypto::Hash& txid) {
+  TransactionId ti = m_transactionsCache.findTransactionByHash(txid);
+  WalletLegacyTransaction transaction;
+  getTransaction(ti, transaction);
+  if (transaction.secretKey) {
+     return reinterpret_cast<const Crypto::SecretKey&>(transaction.secretKey.get());
+  } else {
+     return NULL_SECRET_KEY;
+  }
 }
 
 } //namespace CryptoNote

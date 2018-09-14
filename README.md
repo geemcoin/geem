@@ -1,19 +1,13 @@
 Geem (Geem) is an anonymous and private cryptocurrency , just like Bitcoin but more anonymous and privacy centric with opaque and more analysis resistant blockchain. It is people's electronic cash, and does not require any intermediaries.
 
-
+Geem now has adaptive block size limit and difficulty. In addition to it Geem will implement adaptive emission, adaptive minimal transaction fee and adaptive monetary deposit interest rate.
 
 ## Building Geem 
 
 ### On *nix
 
-Dependencies: GCC 4.7.3 or later, CMake 2.8.6 or later, and Boost 1.58.
+Dependencies: GCC 4.7.3 or later, CMake 2.8.6 or later, and Boost 1.55.
 
-Recommended OS is Ubuntu 16.04 with Boost 1.58 and cmake 2.8.6 or later.
-
-To setup build environment, run the command below.:
-```
-sudo apt-get install build-essential git cmake libboost-all-dev
-```
 You may download them from:
 
 * http://gcc.gnu.org/
@@ -30,14 +24,14 @@ To build, change to a directory where this file is located, and run `make`. The 
 * Test suite: run `make test-release` to run tests in addition to building. Running `make test-debug` will do the same to the debug version.
 * Building with Clang: it may be possible to use Clang instead of GCC, but this may not work everywhere. To build, run `export CC=clang CXX=clang++` before running `make`.
 
-### On Windows 
-Dependencies: MSVC 2013 or later, CMake 2.8.6 or later, and Boost 1.55. Works with Boost 1.58 as well. Compile with address-model argument. You may download them from:
+### On Windows
+Dependencies: MSVC 2013 or later, CMake 2.8.6 or later, and Boost 1.55. You may download them from:
 
 * http://www.microsoft.com/
 * http://www.cmake.org/
 * http://www.boost.org/
 
-To build, change to a directory where this file is located, and run these commands: 
+To build, change to a directory where this file is located, and run theas commands: 
 ```
 mkdir build
 cd build

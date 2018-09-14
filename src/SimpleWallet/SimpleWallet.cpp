@@ -1,7 +1,9 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers, The Geem developers
 // Copyright (c) 2014-2016, XDN developers
+// Copyright (c) 2014-2016, The Monero Project
 // Copyright (c) 2014-2017, The Forknote developers
-// Copyright (c) 2016-2018, Geem developers
+// Copyright (c) 2014-2017, The Monero Project
+// Copyright (c) 2016-2018, The Geem developers
 //
 // All rights reserved.
 // 
@@ -194,6 +196,7 @@ private:
 
 struct TransferCommand {
   const CryptoNote::Currency& m_currency;
+  const CryptoNote::NodeRpcProxy& m_node;
   size_t fake_outs_count;
   std::vector<CryptoNote::WalletLegacyTransfer> dsts;
   std::vector<uint8_t> extra;
@@ -202,8 +205,10 @@ struct TransferCommand {
   std::map<std::string, std::vector<WalletLegacyTransfer>> aliases;
 #endif
 
-  TransferCommand(const CryptoNote::Currency& currency) :
-    m_currency(currency), fake_outs_count(0), fee(currency.minimumFee()) {
+  TransferCommand(const CryptoNote::Currency& currency, const CryptoNote::NodeRpcProxy& node) :
+    m_currency(currency), m_node(node), fake_outs_count(0), 
+    fee(m_node.getLastLocalBlockHeaderInfo().majorVersion < CryptoNote::BLOCK_MAJOR_VERSION_4 ?
+    m_currency.minimumFee() : m_currency.roundUpMinFee(m_node.getMinimalFee(), 1)) { // Round up minimal fee to 1 digit after last leading zero by default
   }
 
   bool parseArguments(LoggerRef& logger, const std::vector<std::string> &args) {
@@ -217,6 +222,16 @@ struct TransferCommand {
       if (!Common::fromString(mixin_str, fake_outs_count)) {
         logger(ERROR, BRIGHT_RED) << "mixin_count should be non-negative integer, got " << mixin_str;
         return false;
+      }
+
+	  if (fake_outs_count < m_currency.minMixin() && fake_outs_count != 0) {
+          logger(ERROR, BRIGHT_RED) << "mixIn should be equal to or bigger than " << m_currency.minMixin();
+          return false;
+      }
+
+      if (fake_outs_count > m_currency.maxMixin()) {
+          logger(ERROR, BRIGHT_RED) << "mixIn should be equal to or less than " << m_currency.maxMixin();
+          return false;
       }
 
       while (!ar.eof()) {
@@ -239,8 +254,9 @@ struct TransferCommand {
               return false;
             }
 
-            if (fee < m_currency.minimumFee()) {
-              logger(ERROR, BRIGHT_RED) << "Fee value is less than minimum: " << m_currency.minimumFee();
+            if (m_node.getLastLocalBlockHeaderInfo().majorVersion < CryptoNote::BLOCK_MAJOR_VERSION_4 ? fee < m_currency.minimumFee() : fee < m_node.getMinimalFee()) {
+              logger(ERROR, BRIGHT_RED) << "Fee value is less than minimum: " 
+                << (m_node.getLastLocalBlockHeaderInfo().majorVersion < CryptoNote::BLOCK_MAJOR_VERSION_4 ? m_currency.minimumFee() : m_node.getMinimalFee());
               return false;
             }
           }
@@ -291,7 +307,7 @@ struct TransferCommand {
 			  aliases[aliasUrl].emplace_back(WalletLegacyTransfer{ "", static_cast<int64_t>(de.amount) });
 		  }
 #endif
-          
+
           if (!remote_fee_address.empty()) {
             destination.address = remote_fee_address;
             int64_t remote_node_fee = static_cast<int64_t>(de.amount * 0.0025);
@@ -300,7 +316,7 @@ struct TransferCommand {
             destination.amount = remote_node_fee;
             dsts.push_back(destination);
           }
-          
+
         }
       }
 
@@ -667,6 +683,9 @@ simple_wallet::simple_wallet(System::Dispatcher& dispatcher, const CryptoNote::C
   m_consoleHandler.setHandler("payment_id", boost::bind(&simple_wallet::payment_id, this, _1), "Generate random Payment ID");
   m_consoleHandler.setHandler("password", boost::bind(&simple_wallet::change_password, this, _1), "Change password");
   m_consoleHandler.setHandler("sweep_dust", boost::bind(&simple_wallet::sweep_dust, this, _1), "Sweep unmixable dust");
+  m_consoleHandler.setHandler("get_tx_key", boost::bind(&simple_wallet::get_tx_key, this, _1), "Get secret transaction key for a given <txid>");
+  m_consoleHandler.setHandler("sign_message", boost::bind(&simple_wallet::sign_message, this, _1), "Sign the message");
+  m_consoleHandler.setHandler("verify_message", boost::bind(&simple_wallet::verify_message, this, _1), "Verify a signature of the message");
   m_consoleHandler.setHandler("help", boost::bind(&simple_wallet::help, this, _1), "Show this help");
   m_consoleHandler.setHandler("exit", boost::bind(&simple_wallet::exit, this, _1), "Close wallet");
 }
@@ -706,6 +725,31 @@ bool simple_wallet::payment_id(const std::vector<std::string> &args) {
 
 //----------------------------------------------------------------------------------------------------
 
+bool simple_wallet::get_tx_key(const std::vector<std::string> &args) {
+	if (args.size() != 1)
+	{
+		fail_msg_writer() << "use: get_tx_key <txid>";
+		return true;
+	}
+	const std::string &str_hash = args[0];
+	Crypto::Hash txid;
+	if (!parse_hash256(str_hash, txid)) {
+		fail_msg_writer() << "Failed to parse txid";
+		return true;
+	}
+
+	Crypto::SecretKey tx_key = m_wallet->getTxKey(txid);
+	if (tx_key != NULL_SECRET_KEY) {
+		success_msg_writer() << "Tx key: " << Common::podToHex(tx_key);
+		return true;
+	}
+	else {
+		fail_msg_writer() << "No tx key found for this txid";
+		return true;
+	}
+}
+
+//----------------------------------------------------------------------------------------------------
 bool simple_wallet::init(const boost::program_options::variables_map& vm)
 {
 	handle_command_line(vm);
@@ -1000,7 +1044,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
 			return false;
 
 		if (!Common::fromHex(private_view_key_string, &private_view_key_hash, sizeof(private_view_key_hash), size) 
-			|| size != sizeof(private_spend_key_hash))
+			|| size != sizeof(private_view_key_hash))
 			return false;
 		
 		Crypto::SecretKey private_spend_key = *(struct Crypto::SecretKey *) &private_spend_key_hash;
@@ -1114,7 +1158,7 @@ bool simple_wallet::init(const boost::program_options::variables_map& vm)
 			|| size != sizeof(private_spend_key_hash))
 			return false;
 		if (!Common::fromHex(private_view_key_string, &private_view_key_hash, sizeof(private_view_key_hash), size) 
-			|| size != sizeof(private_spend_key_hash))
+			|| size != sizeof(private_view_key_hash))
 			return false;
 
 		Crypto::PublicKey public_spend_key  = *(struct Crypto::PublicKey*) &public_spend_key_hash;
@@ -1259,7 +1303,6 @@ bool simple_wallet::gen_wallet(const std::string &wallet_file, const std::string
 	success_msg_writer() <<
 		"**********************************************************************\n" <<
 		"Your wallet has been generated.\n" <<
-		"To start synchronizing with the daemon use \"refresh\" command.\n" <<
 		"Use \"help\" command to see the list of available commands.\n" <<
 		"Always use \"exit\" command when closing simplewallet to save\n" <<
 		"current session's state. Otherwise, you will possibly need to synchronize \n" <<
@@ -1907,13 +1950,24 @@ std::string simple_wallet::getFeeAddress() {
   return address;
 }
 //----------------------------------------------------------------------------------------------------
+uint64_t simple_wallet::getMinimalFee() {
+  uint64_t ret(0);
+  if (m_node->getLastLocalBlockHeaderInfo().majorVersion < CryptoNote::BLOCK_MAJOR_VERSION_4) {
+    ret = m_currency.minimumFee();
+  } else {
+    // round fee to 2 digits after leading zeroes
+    ret = m_currency.roundUpMinFee(m_node->getMinimalFee(), 2);   
+  }
+  return ret;
+}
+//----------------------------------------------------------------------------------------------------
 bool simple_wallet::transfer(const std::vector<std::string> &args) {
   if (m_trackingWallet){
     fail_msg_writer() << "This is tracking wallet. Spending is impossible.";
     return true;
   }
   try {
-    TransferCommand cmd(m_currency);
+    TransferCommand cmd(m_currency, *m_node);
 
 	if (!cmd.parseArguments(logger, args))
 		return true;
@@ -1976,7 +2030,7 @@ bool simple_wallet::transfer(const std::vector<std::string> &args) {
 
     CryptoNote::WalletLegacyTransaction txInfo;
     m_wallet->getTransaction(tx, txInfo);
-    success_msg_writer(true) << "Money successfully sent, transaction " << Common::podToHex(txInfo.hash);
+    success_msg_writer(true) << "Money successfully sent, transaction id: " << Common::podToHex(txInfo.hash) << ", key: " << Common::podToHex(txInfo.secretKey);
 
     try {
       CryptoNote::WalletHelper::storeWallet(*m_wallet, m_wallet_file);
@@ -2021,7 +2075,7 @@ bool simple_wallet::sweep_dust(const std::vector<std::string>& args) {
 
 		WalletHelper::IWalletRemoveObserverGuard removeGuard(*m_wallet, sent);
 
-		CryptoNote::TransactionId tx = m_wallet->sendDustTransaction(destination, m_currency.minimumFee(), extraString, 0, 0);
+		CryptoNote::TransactionId tx = m_wallet->sendDustTransaction(destination, getMinimalFee(), extraString, 0, 0);
 		if (tx == WALLET_LEGACY_INVALID_TRANSACTION_ID) {
 			fail_msg_writer() << "Can't send money";
 			return true;
@@ -2081,6 +2135,58 @@ void simple_wallet::stop() {
 //----------------------------------------------------------------------------------------------------
 bool simple_wallet::print_address(const std::vector<std::string> &args/* = std::vector<std::string>()*/) {
   success_msg_writer() << m_wallet->getAddress();
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::sign_message(const std::vector<std::string> &args) {
+  if (args.size() != 1) {
+    fail_msg_writer() << "usage: sign \"message to sign\" (use quotes if case of spaces)";
+    return true;
+  }
+  if (m_trackingWallet) {
+    fail_msg_writer() << "wallet is watch-only and cannot sign";
+    return true;
+  }
+  std::string message = args[0];
+  std::string signature = m_wallet->sign_message(message);
+  success_msg_writer() << signature;
+  return true;
+}
+//----------------------------------------------------------------------------------------------------
+bool simple_wallet::verify_message(const std::vector<std::string> &args) {
+  if (args.size() != 3) {
+    fail_msg_writer() << "usage: verify \"message to verify\" <address> <signature>";
+    return true;
+  }
+  std::string message = args[0];
+  std::string address_string = args[1];
+  std::string signature = args[2];
+  CryptoNote::AccountPublicAddress address;
+  if (!m_currency.parseAccountAddressString(address_string, address)) {
+    fail_msg_writer() << "failed to parse address " << address_string;
+	return true;
+  }
+  const size_t header_len = strlen("SigV1");
+  if (signature.size() < header_len || signature.substr(0, header_len) != "SigV1") {
+    fail_msg_writer() << ("Signature header check error");
+    return false;
+  }
+  std::string decoded;
+  if (!Tools::Base58::decode(signature.substr(header_len), decoded)) {
+    fail_msg_writer() << ("Signature decoding error");
+    return false;
+  }
+  Crypto::Signature s;
+  if (sizeof(s) != decoded.size()) {
+    fail_msg_writer() << ("Signature decoding error");
+    return false;
+  }
+  bool r = m_wallet->verify_message(message, address, signature);
+  if (!r) {
+    fail_msg_writer() << "Invalid signature from " << address_string;
+  } else {
+    success_msg_writer() << "Valid signature from " << address_string;
+  }
   return true;
 }
 //----------------------------------------------------------------------------------------------------
