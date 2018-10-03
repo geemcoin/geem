@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 "      [.....   [........[........[..       [..   \n"
 "  ============================================== \n"
 "            GEEM  |  VALUE  |  STORED            \n"
-"          Version 2.3.9 Codename: Nebula         \n"
+"          Version 2.4.0 Codename: Nebula         \n"
 "                |||The StarDust|||               \n"
 "  ============================================== \n" 
 "                                                 \n" << ENDL;

@@ -1,3 +1,13 @@
+Release notes Geem 2.4.0
+
+- Addresses the burning bug issue
+- Doesn't process burning transactions in the wallet
+- Wallet correctly throws an error when duplicate output key is found
+- Checks against outputs keys stored in memory while the wallet is running
+- When reset it will check all transactions against all output keys
+- Checkpoints up to block 151900
+- GeemWallet and GeemWallet2 binaries compiled against version 2.4.0.
+
 Release notes Geem 2.3.9
 
 - Blockchain checkpoints upto block 130900

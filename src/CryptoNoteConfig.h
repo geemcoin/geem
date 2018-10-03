@@ -57,7 +57,7 @@ const size_t   CRYPTONOTE_DISPLAY_DECIMAL_POINT              = 8;
 const uint64_t MINIMUM_FEE                                   = UINT64_C(100000);
 const uint64_t MAXIMUM_FEE                                   = UINT64_C(100000);
 
-const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(0);
+const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(100000000);
 const uint64_t MIN_TX_MIXIN_SIZE                             = 2;
 const uint64_t MAX_TX_MIXIN_SIZE                             = 20;
 const uint64_t MAX_TRANSACTION_SIZE_LIMIT                    = CRYPTONOTE_BLOCK_GRANTED_FULL_REWARD_ZONE_CURRENT / 4 - CRYPTONOTE_COINBASE_BLOB_RESERVED_SIZE;
@@ -180,7 +180,10 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {122222,      "a5fb88af91d31f3a5560ad4ed1277a3e4ee1aa1487f8835f830877a2b9f93c63" },
   {130000,      "c20d0796e86fd2f6b0d14f25142dc17886a85398944050cdfa3ec900ae6368b9" },
   {133333,      "0bd8f1a865479d522e439b2751aea706282da823a20f2bb8f998548d3aa17368" },
-  {135900,      "6fed04437714f81a9d1c40d5e509c323efce12a282d3ff60268b10380822bdbb" }            // 9/8/2018, 4:24:16 PM //Long-Term-JSAJ-Nebula
+  {135900,      "6fed04437714f81a9d1c40d5e509c323efce12a282d3ff60268b10380822bdbb" },            // 9/8/2018, 4:24:16 PM //Long-Term-JSAJ-Nebula
+  {144444,      "92f59721527a34a0224215922330272fb9ace452013c09d07e925dcb7cc9b733" },
+  {150000,      "5ab26864e08cb976d3bede7ee0dfbfd10320f3d086352ce544f6a41a7d154e89" },
+  {151900,      "280b85af7c8058a8ba1d57efedbfb396a31a6b1298de2944378dbd06a8602b20" }            // 10/02/2018, 1:59:45 AM //Premature-Burning-Long-Term-JSAJ-Nebula
 };
 
 } // CryptoNote
