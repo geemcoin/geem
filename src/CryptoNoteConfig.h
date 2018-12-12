@@ -2,6 +2,7 @@
 // 
 // 
 // Copyright (c) 2018, Ryo Currency Project
+// Copyright (c) 2016-2018, The Karbo developers
 // Copyright (c) 2017-2018, The Geem developers
 //
 // This file is part of Bytecoin.
