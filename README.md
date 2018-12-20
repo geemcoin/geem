@@ -5,11 +5,11 @@ Geem now has adaptive block size limit and difficulty. In addition to it Geem wi
 
 ## Major Blockchain Version Upgrade
 
-### Announced Nov 14th 2018
-* Geem is currently considering a major block version upgrade at a height in the near future. The height will be between block 200000 to 230000. This upgrade will be mandatory if implemented.
-* If major block version is upgraded from version 2 to version 3, all 6 seed nodes, Geem Explorer and the official Geem mining pool will be upgraded to the latest version.
-* If implemented, Geem core will be set to use v. 2.4.1.000 codename nimbus.
-* If implemented, all exchange partners, pool operators and users will be required to upgrade to major block version 3 to stay on the correct blockchain.
+### Announced Dec 20th 2018
+* Geem will be upgraded to Major Blockchain Verion 3 at height 229000.
+* All 6 seed nodes, Geem Explorer and the official Geem mining pool will be upgraded to the latest version.
+* Geem core will be set to use v. 2.4.1.0000 codename nimbus.
+* all exchange partners, pool operators and users will be required to upgrade to major block version 3 to stay on the correct blockchain.
 
 ## Building Geem 
 
