@@ -1,3 +1,12 @@
+Release notes Geem 2.4.1
+
+- Limit reorganization depth to mined money unlock window
+- Do not reorganize to alternative chain if it lacks at least one transaction from the public chain (51%-attack protection)
+- Disallow merged mining tag in the coinbase transaction
+- LWMA difficulty algorithm fix
+- Blockchain checkpoints upto 200000
+- Major Block version upgrade(s)
+
 Release notes Geem 2.4.0
 
 - Addresses the burning bug issue

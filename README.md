@@ -2,15 +2,6 @@ Geem (Geem) is an anonymous and private cryptocurrency , just like Bitcoin but m
 
 Geem now has adaptive block size limit and difficulty. In addition to it Geem will implement adaptive emission, adaptive minimal transaction fee and adaptive monetary deposit interest rate.
 
-
-## Major Blockchain Version Upgrade
-
-### Announced Dec 20th 2018
-* Geem will be upgraded to Major Blockchain Verion 3 at height 229000.
-* All 6 seed nodes, Geem Explorer and the official Geem mining pool will be upgraded to the latest version.
-* Geem core will be set to use v. 2.4.1.0000 codename nimbus.
-* all exchange partners, pool operators and users will be required to upgrade to major block version 3 to stay on the correct blockchain.
-
 ## Building Geem 
 
 ### On *nix

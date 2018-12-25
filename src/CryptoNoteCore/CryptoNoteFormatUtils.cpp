@@ -296,7 +296,7 @@ bool check_outs_valid(const TransactionPrefix& tx, std::string* error) {
   std::unordered_set<PublicKey> keys_seen;
   for (const TransactionOutput& out : tx.outputs) {
     if (out.target.type() == typeid(KeyOutput)) {
-
+ 
       if (out.amount == 0) {
         if (error) {
           *error = "Zero amount ouput";
@@ -334,7 +334,8 @@ bool check_outs_valid(const TransactionPrefix& tx, std::string* error) {
           }
           return false;
         }
-      if (keys_seen.find(key) != keys_seen.end()) {
+
+        if (keys_seen.find(key) != keys_seen.end()) {
           if (error) {
             *error = "The same multisignature output target is present more than once";
           }

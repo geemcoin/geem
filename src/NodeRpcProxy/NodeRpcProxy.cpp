@@ -69,8 +69,8 @@ NodeRpcProxy::NodeRpcProxy(const std::string& nodeHost, unsigned short nodePort)
     m_connected(true),
     m_peerCount(0),
     m_networkHeight(0),
-      m_nodeHeight(0),
-      m_minimalFee(CryptoNote::parameters::MAXIMUM_FEE) {
+	m_nodeHeight(0),
+	m_minimalFee(CryptoNote::parameters::MAXIMUM_FEE) {
   resetInternalState();
 }
 
@@ -115,8 +115,8 @@ void NodeRpcProxy::init(const INode::Callback& callback) {
 }
 
 bool NodeRpcProxy::shutdown() {
+  std::unique_lock<std::mutex> lock(m_mutex);
 
-    std::unique_lock<std::mutex> lock(m_mutex);
   if (m_state == STATE_NOT_INITIALIZED) {
     return true;
   } else if (m_state == STATE_INITIALIZING) {
@@ -125,8 +125,10 @@ bool NodeRpcProxy::shutdown() {
       return true;
     }
   }
+
   assert(m_state == STATE_INITIALIZED);
   assert(m_dispatcher != nullptr);
+
   m_dispatcher->remoteSpawn([this]() {
     m_stop = true;
     // Run all spawned contexts
@@ -269,7 +271,7 @@ void NodeRpcProxy::updateBlockchainStatus() {
     updatePeerCount(getInfoResp.incoming_connections_count + getInfoResp.outgoing_connections_count);
 
 	m_minimalFee.store(getInfoResp.min_tx_fee, std::memory_order_relaxed);
-        m_nodeHeight.store(getInfoResp.height, std::memory_order_relaxed);
+	m_nodeHeight.store(getInfoResp.height, std::memory_order_relaxed);
   }
 
   if (m_connected != m_httpClient->isConnected()) {

@@ -207,4 +207,3 @@ std::error_code PaymentServiceJsonRpcServer::handleEstimateFusion(const Estimate
 }
 
 }
-

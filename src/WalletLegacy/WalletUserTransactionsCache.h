@@ -73,7 +73,6 @@ private:
 
   typedef std::vector<WalletLegacyTransfer> UserTransfers;
   typedef std::vector<WalletLegacyTransaction> UserTransactions;
-
   using Offset = UserTransactions::size_type;
   using UserPaymentIndex = std::unordered_map<PaymentId, std::vector<Offset>, boost::hash<PaymentId>>;
 

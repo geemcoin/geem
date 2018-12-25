@@ -42,7 +42,7 @@ bool WalletUserTransactionsCache::serialize(CryptoNote::ISerializer& s) {
 
     updateUnconfirmedTransactions();
     deleteOutdatedTransactions();
-      rebuildPaymentsIndex();
+	rebuildPaymentsIndex();
   } else {
     UserTransactions txsToSave;
     UserTransfers transfersToSave;
@@ -59,24 +59,30 @@ bool WalletUserTransactionsCache::serialize(CryptoNote::ISerializer& s) {
 bool paymentIdIsSet(const PaymentId& paymentId) {
   return paymentId != NULL_HASH;
 }
+
 bool canInsertTransactionToIndex(const WalletLegacyTransaction& info) {
   return info.state == WalletLegacyTransactionState::Active && info.blockHeight != WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT &&
       info.totalAmount > 0 && !info.extra.empty();
 }
+
 void WalletUserTransactionsCache::pushToPaymentsIndex(const PaymentId& paymentId, Offset distance) {
   m_paymentsIndex[paymentId].push_back(distance);
 }
+
 void WalletUserTransactionsCache::popFromPaymentsIndex(const PaymentId& paymentId, Offset distance) {
   auto it = m_paymentsIndex.find(paymentId);
   if (it == m_paymentsIndex.end()) {
     return;
   }
+
   auto toErase = std::lower_bound(it->second.begin(), it->second.end(), distance);
   if (toErase == it->second.end() || *toErase != distance) {
     return;
   }
+
   it->second.erase(toErase);
 }
+
 void WalletUserTransactionsCache::rebuildPaymentsIndex() {
   auto begin = std::begin(m_transactions);
   auto end = std::end(m_transactions);
@@ -182,11 +188,6 @@ std::shared_ptr<WalletLegacyEvent> WalletUserTransactionsCache::onTransactionUpd
     event = std::make_shared<WalletExternalTransactionCreatedEvent>(id);
   } else {
     WalletLegacyTransaction& tr = getTransaction(id);
-      std::vector<uint8_t> extra(tr.extra.begin(), tr.extra.end());
-    PaymentId paymentId;
-    if (getPaymentIdFromTxExtra(extra, paymentId)) {
-      popFromPaymentsIndex(paymentId, id);
-    }
     tr.blockHeight = txInfo.blockHeight;
     tr.timestamp = txInfo.timestamp;
     tr.state = WalletLegacyTransactionState::Active;
@@ -210,6 +211,12 @@ std::shared_ptr<WalletLegacyEvent> WalletUserTransactionsCache::onTransactionDel
   std::shared_ptr<WalletLegacyEvent> event;
   if (id != CryptoNote::WALLET_LEGACY_INVALID_TRANSACTION_ID) {
     WalletLegacyTransaction& tr = getTransaction(id);
+	std::vector<uint8_t> extra(tr.extra.begin(), tr.extra.end());
+    PaymentId paymentId;
+    if (getPaymentIdFromTxExtra(extra, paymentId)) {
+      popFromPaymentsIndex(paymentId, id);
+    }
+
     tr.blockHeight = WALLET_LEGACY_UNCONFIRMED_TRANSACTION_HEIGHT;
     tr.timestamp = 0;
     tr.state = WalletLegacyTransactionState::Deleted;
@@ -255,8 +262,10 @@ std::vector<Payments> WalletUserTransactionsCache::getTransactionsByPaymentIds(c
         return m_transactions[val];
       });
     }
+
     ++payment;
   }
+
   return payments;
 }
 

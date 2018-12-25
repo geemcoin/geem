@@ -1,0 +1,17 @@
+[Unit]
+Description=Geem GEEM service
+After=network.target
+
+[Service]
+Type=oneshot
+User=geem
+Group=geem
+PermissionsStartOnly=true
+RemainAfterExit=yes
+ExecStartPre=-/bin/mkdir -p /var/run/geem
+ExecStartPre=/bin/chown -R geem:geem /var/run/geem/
+ExecStart=/usr/lib/geem/geemd.sh --start
+ExecStop=/usr/lib/geem/geemd.sh --stop
+
+[Install]
+WantedBy=multi-user.target

@@ -969,7 +969,7 @@ std::error_code WalletService::getStatus(uint32_t& blockCount, uint32_t& knownBl
     knownBlockCount = node.getKnownBlockCount();
     peerCount = static_cast<uint32_t>(node.getPeerCount());
     blockCount = wallet.getBlockCount();
-      localDaemonBlockCount = node.getLocalBlockCount();
+	localDaemonBlockCount = node.getLocalBlockCount();
 	minimalFee = node.getMinimalFee();
 
     auto lastHashes = wallet.getBlockHashes(blockCount - 1, 1);

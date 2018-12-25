@@ -75,6 +75,7 @@ struct Payments {
   PaymentId paymentId;
   std::vector<WalletLegacyTransaction> transactions;
 };
+
 static_assert(std::is_move_constructible<Payments>::value, "Payments is not move constructible");
 
 class IWalletLegacyObserver {
@@ -126,6 +127,7 @@ public:
   virtual bool getTransaction(TransactionId transactionId, WalletLegacyTransaction& transaction) = 0;
   virtual bool getTransfer(TransferId transferId, WalletLegacyTransfer& transfer) = 0;
   virtual std::vector<Payments> getTransactionsByPaymentIds(const std::vector<PaymentId>& paymentIds) const = 0;
+
   virtual TransactionId sendTransaction(const WalletLegacyTransfer& transfer, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) = 0;
   virtual TransactionId sendTransaction(const std::vector<WalletLegacyTransfer>& transfers, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) = 0;
   virtual TransactionId sendDustTransaction(const WalletLegacyTransfer& transfer, uint64_t fee, const std::string& extra = "", uint64_t mixIn = 0, uint64_t unlockTimestamp = 0) = 0;
