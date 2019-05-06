@@ -1,24 +1,23 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
-// Copyright (c) 2014-2018, The Monero project
-// Copyright (c) 2014-2018, The Forknote developers
-// Copyright (c) 2018, Ryo Currency Project
-// Copyright (c) 2016-2018, The Karbowanec developers
-// Copyright (c) 2017-2018, The Geem developers
+// 
+// 
+// Copyright (c) 2016-2019, The Karbo developers
+// Copyright (c) 2018-2019, The Geem developers
 //
 // This file is part of Geem.
 //
-// Bytecoin is free software: you can redistribute it and/or modify
+// Geem is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Bytecoin is distributed in the hope that it will be useful,
+// Geem is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
+// along with Geem.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -59,7 +58,7 @@ const uint64_t MINIMUM_FEE_V1                                = UINT64_C(100000);
 const uint64_t MINIMUM_FEE_V2                                = UINT64_C(100000);
 const uint32_t MINIMUM_FEE_V2_HEIGHT                         = 229500;
 const uint64_t MINIMUM_FEE                                   = MINIMUM_FEE_V2;
-const uint64_t MAXIMUM_FEE                                   = UINT64_C(100000);  //New Fee Structure
+const uint64_t MAXIMUM_FEE                                   = UINT64_C(1000000);
 
 const uint64_t DEFAULT_DUST_THRESHOLD                        = UINT64_C(100000000);
 const uint64_t MIN_TX_MIXIN_SIZE                             = 2;
@@ -78,9 +77,9 @@ const size_t   DIFFICULTY_CUT                                = 60;  // timestamp
 const size_t   DIFFICULTY_LAG                                = 15;  // !!!
 static_assert(2 * DIFFICULTY_CUT <= DIFFICULTY_WINDOW - 2, "Bad DIFFICULTY_WINDOW or DIFFICULTY_CUT");
 
-static const uint64_t POISSON_CHECK_TRIGGER = 10; // Reorg size that triggers poisson timestamp check
-static const uint64_t POISSON_CHECK_DEPTH = 60;   // Main-chain depth of the poisson check. The attacker will have to tamper 50% of those blocks
-static const double POISSON_LOG_P_REJECT = -75.0; // Reject reorg if the probability that the timestamps are genuine is below e^x, -75 = 10^-33
+const uint64_t POISSON_CHECK_TRIGGER = 10; // Reorg size that triggers poisson timestamp check
+const uint64_t POISSON_CHECK_DEPTH = 60;   // Main-chain depth of the poisson check. The attacker will have to tamper 50% of those blocks
+const double POISSON_LOG_P_REJECT = -75.0; // Reject reorg if the probablity that the timestamps are genuine is below e^x, -75 = 10^-33
 
 const size_t   MAX_BLOCK_SIZE_INITIAL                        = 1000000;
 const uint64_t MAX_BLOCK_SIZE_GROWTH_SPEED_NUMERATOR         = 100 * 1024;
@@ -99,8 +98,9 @@ const size_t   FUSION_TX_MIN_IN_OUT_COUNT_RATIO              = 4;
 
 const uint32_t UPGRADE_HEIGHT_V2                             = 7200;
 const uint32_t UPGRADE_HEIGHT_V3                             = 229000;
-const uint32_t UPGRADE_HEIGHT_V4                             = 50000000;
-const uint32_t UPGRADE_HEIGHT_V5                             = 60000000;
+const uint32_t UPGRADE_HEIGHT_V4                             = 350000;
+const uint32_t UPGRADE_HEIGHT_LWMA3                          = 360000;
+const uint32_t UPGRADE_HEIGHT_V5                             = 4294967294;
 const unsigned UPGRADE_VOTING_THRESHOLD                      = 90; // percent
 const uint32_t UPGRADE_VOTING_WINDOW                         = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY;  // blocks
 const uint32_t UPGRADE_WINDOW                                = EXPECTED_NUMBER_OF_BLOCKS_PER_DAY;  // blocks
@@ -124,6 +124,7 @@ const uint8_t  BLOCK_MAJOR_VERSION_1                         =  1;
 const uint8_t  BLOCK_MAJOR_VERSION_2                         =  2;
 const uint8_t  BLOCK_MAJOR_VERSION_3                         =  3;
 const uint8_t  BLOCK_MAJOR_VERSION_4                         =  4;
+const uint8_t  BLOCK_MAJOR_VERSION_5                         =  5;
 const uint8_t  BLOCK_MINOR_VERSION_0                         =  0;
 const uint8_t  BLOCK_MINOR_VERSION_1                         =  1;
 
@@ -169,14 +170,14 @@ struct CheckpointData {
   const char* blockId;
 };
 
-const std::initializer_list<CheckpointData> CHECKPOINTS = { 
+const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {7150,        "69c7e57cb576fd0899951c7ea5841d529358682d9ae6fc183051b0663bd84a63" },           // 12/25/2017, 5:37:56 PM
   {7201,        "a07c0cb16114853a2801a4ef68c9c22b9ceb27931e649fdc2ee7f5a7d0e4e99c" },           // 12/25/2017, 8:48:15 PM //V2.0-Start
   {7777,        "36637f9067ab76b3886a826b29f09a0582a345a9cc311315231955c91c43a184" },           // 12/30/2017, 8:55:18 PM
   {8888,        "368eb9d8ff276f133282ea22150c265d7031159e586df6e8b2e2b3b42c2311f3" },           // 1/9/2018, 7:51:32 AM
   {9999,        "18505e185cd92867fe4c9d8eb1160e4da63b53674040bb8c1b36865d873815ca" },           // 3/5/2018, 0:1:10 AM
   {20000,       "9a1413cc5d46dd2b67a0986c5fed5d8513a4c068ed589649335789cb12d5487d" },           // 3/5/2018, 0:10:37 AM //Long-Term
-  {22222,	"0b932de4ff8ef8a6d3ad7031c8e1abe68283da1bc47427201b7ac316d3c3f4fc" },			
+  {22222,	"0b932de4ff8ef8a6d3ad7031c8e1abe68283da1bc47427201b7ac316d3c3f4fc" },
   {33333,       "0448be8befda190a034155767dd037730761248713f6be04dc356e027063dd6a" },
   {44444,       "639fbbfe5a5b9c40cb44fb2023d05fb1beb0fb31cd7b1b39e9b31187405a4a5e" },
   {55555,       "4c126bf44d79b107805d5ef34a52d78c1a4c25aa4b1dff9a59a3a13f8c06f01e" },
@@ -209,7 +210,24 @@ const std::initializer_list<CheckpointData> CHECKPOINTS = {
   {189999,      "414896ec1e7d45ae616dc94e2880500ddc96add7d98447c08bc4d52866cc8a90" },
   {195000,      "72f8db1b675b796398d61e281b5ddcd44979fb995a49037c6da7d52157890906" },             // 12/04/2018,  3:21:24 PM EST //Long-Term Nimbus V3 Planned
   {199999,      "f90906dc0f05929e48d4d19d5bf212ac99a699df516a0b852b3c321f7e211f78" },
-  {200000,      "2e3d962e0773ad0a3f76d313c019d342371fa643ca4a4a6649c3a319c2b39261" }             //  12/10/2018, 9:31:52 PM  EST //Long-Term Halo V4 derived
+  {200000,      "2e3d962e0773ad0a3f76d313c019d342371fa643ca4a4a6649c3a319c2b39261" },             //  12/10/2018, 9:31:52 PM  EST //Long-Term Halo V4 derived
+  {211111,      "8c642e08d796da9692f583e001a2db9efeefbb50652f1583b7cb60e0cdd35c2f" },
+  {222222,      "191d58e4026aae092ff6af9421780571bec72d130d3dd4c7c52cdedcc867904c" },
+  {229000,      "2387e7147a703162ea2d3d4900147170250c87976cad3024562b40728d65c306" },            //  1/22/2019, 2:11:01 AM  EST //V2 End!
+  {229001,      "bd8b0741597c2aaaaccd37ec27f72bb809b3bac97f830336bf12071c8c902eae" },            //  1/22/2019, 2:11:23 AM  EST //V3 Start Successful!
+  {233333,      "81bf4d2a81acbd5974ad9eeacdebc705c819c2b1c185ed232b7485d4876f252e" },
+  {244444,      "3d03557d0bfd2168a62d58f3db3c8612592c52d89758b28795941ce72ea69af5" },
+  {255555,      "e0da7aed51e2720f0a3ff459cdde2b2dc2f9c0ae7f4bf183b52908830727eced" },
+  {266666,      "800488defd2c7ee111ba23bf14a87904515a621ac2d636ba4a932e91381e1297" },
+  {277777,      "b9dccd88a26069b7d2f8c14aee28e82b04891a8930922a635e1061cf8f590df9" },
+  {280000,      "d8260abf3258c978d4caace157ec112655f1f4bd8cd4ba4f7c73ed0739ae937c" },
+  {281111,      "ff4b16da2d5290f813f44ed9f079833e2d356b5896642ca3481ea2c764a9d12c" },
+  {282222,      "6caae8a3ea904788e34e9137981a1bc192c7499132bf7610fdbc007f451ddb4e" },
+  {283333,      "0ea3781c84ba4695b91fb53e1a3e7c33138c5365fef5fd1dc8ffef8f4f31805b" },
+  {284444,      "6821f0b7862322d4d6ec179c232eaa21270df8bf6cbbc4d6c4b2f2cd8dae90cd" },
+  {285555,      "2da786c78889e68413e346cff7ecb7395ea62fef15a9398b5f9c14c093c614e4" },
+  {286666,      "80915d43a7d53f1190d4895b94fa0a73e9dc314a8a76051b5352ba3d9fa0fdd3" },
+  {286697,      "a37bf107a5600b2f1c1fa2f7b43e35e937274d84128f7d942854a6828c7fb55e" }            //  4/13/2019, 2:08:20 PM | V4 set to activate at height 350000 | Just a rainy afternoon here..
 };
 
 } // CryptoNote

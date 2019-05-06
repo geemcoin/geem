@@ -1,21 +1,21 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2018, The TurtleCoin developers
-// Copyright (c) 2018, The Karbo developers
+// Copyright (c) 2018, The Geem developers
 //
-// This file is part of Bytecoin.
+// This file is part of Geem.
 //
-// Bytecoin is free software: you can redistribute it and/or modify
+// Geem is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Bytecoin is distributed in the hope that it will be useful,
+// Geem is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
+// along with Geem.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstdlib>
 #include <fstream>
@@ -150,10 +150,10 @@ bool Checkpoints::load_checkpoints_from_dns()
   std::string domain("checkpoints.geem.io");
   std::vector<std::string>records;
 
-  logger(Logging::DEBUGGING) << "Are DNS checkpoints really that important " << domain;
+  logger(Logging::DEBUGGING) << "Fetching DNS checkpoint records from " << domain;
 
   if (!Common::fetch_dns_txt(domain, records)) {
-    logger(Logging::INFO) << "Are DNS checkpoints really that important? " << domain;
+    logger(Logging::INFO) << "Failed to lookup DNS checkpoint records from " << domain;
   }
 
   for (const auto& record : records) {
@@ -167,7 +167,7 @@ bool Checkpoints::load_checkpoints_from_dns()
     char c;
     if (del == std::string::npos) continue;
     if ((ss.fail() || ss.get(c)) || !Common::podFromHex(hash_str, hash)) {
-      logger(Logging::INFO) << "Skipped DNS checkpoints: " << record;
+      logger(Logging::INFO) << "Failed to parse DNS checkpoint record: " << record;
       continue;
     }
 

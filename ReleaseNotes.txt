@@ -1,3 +1,13 @@
+Release notes Geem 2.4.2
+
+- Simplewallet with major wallet optimizations including fusion transactions
+- Patch for timestamp locked invalid inputs in transactions
+- Option of deterministic keys and mnemonic phrase for walletd
+- Export wallet and Create addresses from a list in walletd
+- RPC methods to get transaction secret key, transaction proof and balance proof in walletd
+- Update of NodeRpcProxy and InProcessNode
+- Various fixes and code cleanup (to be continued)
+
 Release notes Geem 2.4.1
 
 - Limit reorganization depth to mined money unlock window
@@ -42,3 +52,4 @@ Release notes Geem 2.3.8
 Release notes Geem 2.3.7
 
 - Initial release. Version started at 2.3.7.
+

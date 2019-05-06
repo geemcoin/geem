@@ -1,8 +1,8 @@
 #include <windows.h>
 
 1 VERSIONINFO
- FILEVERSION 2,4,1,0
- PRODUCTVERSION 2,4,1,0
+ FILEVERSION 2,4,2,0
+ PRODUCTVERSION 2,4,2,0
  FILEFLAGSMASK 0x3fL
  FILEFLAGS 0x0L
  FILEOS 0x40004L
@@ -15,12 +15,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "The Geem Project"
             VALUE "FileDescription", "Geem network daemon"
-            VALUE "FileVersion", "2.4.1.0"
+            VALUE "FileVersion", "2.4.2.0"
             VALUE "InternalName", "geemd.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2017-2018, Geem Developers"
+            VALUE "LegalCopyright", "Copyright (C) 2017-2019, Geem Developers"
             VALUE "OriginalFilename", "geemd.exe"
             VALUE "ProductName", "Geem"
-            VALUE "ProductVersion", "2.4.1.0"
+            VALUE "ProductVersion", "2.4.2.0"
         END
     END
     BLOCK "VarFileInfo"

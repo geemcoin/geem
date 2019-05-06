@@ -2,20 +2,20 @@
 // Copyright (c) 2018, The BBSCoin Developers
 // Copyright (c) 2018, The Geem Developers
 //
-// This file is part of Bytecoin.
+// This file is part of Geem.
 //
-// Bytecoin is free software: you can redistribute it and/or modify
+// Geem is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Bytecoin is distributed in the hope that it will be useful,
+// Geem is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
+// along with Geem.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "TransfersConsumer.h"
 
@@ -134,7 +134,13 @@ ITransfersSubscription& TransfersConsumer::addSubscription(const AccountSubscrip
   if (res.get() == nullptr) {
     res.reset(new TransfersSubscription(m_currency, m_logger.getLogger(), subscription));
     m_spendKeys.insert(subscription.keys.address.spendPublicKey);
-    updateSyncStart();
+    if (m_subscriptions.size() == 1) {
+      m_syncStart = res->getSyncStart();
+    } else {
+      auto subStart = res->getSyncStart();
+      m_syncStart.height = std::min(m_syncStart.height, subStart.height);
+      m_syncStart.timestamp = std::min(m_syncStart.timestamp, subStart.timestamp);
+    }
   }
 
   return *res;

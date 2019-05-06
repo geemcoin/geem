@@ -1,20 +1,20 @@
 // Copyright (c) 2012-2016, The CryptoNote developers, The Bytecoin developers
 // Copyright (c) 2018, The Geem developers
 //
-// This file is part of Bytecoin.
+// This file is part of Geem.
 //
-// Bytecoin is free software: you can redistribute it and/or modify
+// Geem is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Lesser General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 //
-// Bytecoin is distributed in the hope that it will be useful,
+// Geem is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Lesser General Public License for more details.
 //
 // You should have received a copy of the GNU Lesser General Public License
-// along with Bytecoin.  If not, see <http://www.gnu.org/licenses/>.
+// along with Geem.  If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
@@ -42,7 +42,7 @@ struct BaseInputDetails {
 struct KeyInputDetails {
   KeyInput input;
   uint64_t mixin;
-  TransactionOutputReferenceDetails output;
+  std::vector<TransactionOutputReferenceDetails> outputs;
 };
 
 struct MultisignatureInputDetails {
@@ -51,6 +51,12 @@ struct MultisignatureInputDetails {
 };
 
 typedef boost::variant<BaseInputDetails, KeyInputDetails, MultisignatureInputDetails> transaction_input_details;
+
+struct TransactionExtraDetails2 {
+  Crypto::PublicKey publicKey;
+  BinaryArray nonce;
+  BinaryArray raw;
+};
 
 struct TransactionDetails2 {
   Crypto::Hash hash;
@@ -66,7 +72,7 @@ struct TransactionDetails2 {
   bool inBlockchain = false;
   Crypto::Hash blockHash;
   uint32_t blockHeight = 0;
-  TransactionExtraDetails extra;
+  TransactionExtraDetails2 extra;
   std::vector<std::vector<Crypto::Signature>> signatures;
   std::vector<transaction_input_details> inputs;
   std::vector<transaction_output_details> outputs;
