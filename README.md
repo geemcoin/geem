@@ -84,6 +84,7 @@ Continue with:
 brew install git cmake boost
 git clone https://github.com/geemcoin/geem.git
 cd geem
+mkdir build
 cd build
 cmake ..
 make
